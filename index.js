@@ -1,3 +1,4 @@
+//Npm dependencies
 const inquirer = require("inquirer");
 const fs = require("fs");
 const util = require("util");
@@ -6,9 +7,11 @@ const axios = require("axios");
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
+//Stores the color the user chooses as well as their Github stars
 var userColor;
 var userStars;
 
+//Prompts the user for input data to create their PDF
 function getUserData() {
     return inquirer.prompt([
         {
@@ -26,6 +29,7 @@ function getUserData() {
 
 };
 
+//Generates an HTML file based on user's Github profile
 function generateHTML(githubResponse) {
     return `
     <!DOCTYPE html>
@@ -66,7 +70,6 @@ function generateHTML(githubResponse) {
                 background-color : ${userColor};
                 border-radius: 10px;
             }
-
         </style>
     </head>
     <body>
@@ -106,6 +109,7 @@ function generateHTML(githubResponse) {
     </html>`
 }
 
+//Initializes the program
 async function init() {
     try {
         const userInput = await getUserData();
@@ -113,6 +117,7 @@ async function init() {
 
         const username = userInput.username;
 
+        //Gets user's repos through the Github API and calculates teh number of stars they have
         await axios
             .get(`https://api.github.com/users/${username}/repos`)
             .then(reposResponse => {
@@ -125,11 +130,14 @@ async function init() {
                 throw err;
             });
 
+        //Retrieves user's Github information and apsses it to the HTML generation function
         axios
             .get(`https://api.github.com/users/${username}`)
             .then(githubResponse => {
 
                 writeFileAsync("index.html", generateHTML(githubResponse)).then(() => {
+
+                    //Uses html-pdf package to convert the HTML to a PDF
                     const html = fs.readFileSync("index.html", "utf8");
                     const options = { "height": "11in", "width": "8.5in", "format": "Letter" }
                     htmlToPdf.create(html, options).toFile("index.pdf", function (err, res) {
