@@ -4,8 +4,6 @@ const util = require("util");
 const htmlToPdf = require("html-pdf");
 const axios = require("axios");
 
-//electron.pdf
-
 const writeFileAsync = util.promisify(fs.writeFile);
 
 var userColor;
@@ -100,8 +98,8 @@ function generateHTML(githubResponse) {
                 <div class="col info text-center mb-3 mx-1 p-1">Public Repositories<br>${githubResponse.data.public_repos}</div>
                 <div class="col info text-center mb-3 mx-1 p-1">Followers<br>${githubResponse.data.followers}</div>
                 <div class="w-100"></div>
-                <div class="col info text-center mx-1 p-1">Github Stars<br>${userStars}</div>
-                <div class="col info text-center mx-1 p-1">Following<br>${githubResponse.data.following}</div>
+                <div class="col info text-center mb-3 mx-1 p-1">Github Stars<br>${userStars}</div>
+                <div class="col info text-center mb-3 mx-1 p-1">Following<br>${githubResponse.data.following}</div>
             </div>
         </div>
     </body>
@@ -136,6 +134,8 @@ async function init() {
                     const options = { "height": "11in", "width": "8.5in", "format": "Letter" }
                     htmlToPdf.create(html, options).toFile("index.pdf", function (err, res) {
                         if (err) throw err;
+
+                        console.log("Success! Pdf saved as index.pdf!")
                     });
                 });
 
@@ -143,8 +143,6 @@ async function init() {
             .catch(err => {
                 throw err;
             });
-
-
     }
     catch (err) {
         console.log(err);
